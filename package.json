@@ -1,0 +1,22 @@
+{
+  "name": "yt2mp3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "clear": "rd /s /q output"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ffmpeg": "^0.0.4",
+    "ffprobe": "^1.1.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "mp3-cutter": "^1.0.6",
+    "video-converter": "^1.0.0",
+    "video-to-audio": "^1.0.1",
+    "ytdl": "^1.4.1"
+  }
+}
