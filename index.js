@@ -6,6 +6,8 @@ const data = require("./data");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+console.log(`Start: ${new Date().toUTCString()}`);
+
 if (!fs.existsSync("./output")) {
   fs.mkdirSync("./output");
 }
@@ -24,7 +26,7 @@ const trim = (src, start, end, title, output) => {
       .output(output)
       .on("end", function (err) {
         if (!err) {
-          console.log(`Zapisano: ${title}`);
+          console.log(`Successfully saved song: ${title} (${new Date().toUTCString()})`);
           resolve();
         }
       })
@@ -41,6 +43,8 @@ const trim = (src, start, end, title, output) => {
     order.run();
   });
 };
+
+const transformToValidTitle = (title) => title.replaceAll('/', '-').replaceAll('?', '');
 
 for (const entry of data) {
   const fullAudioPath = `./output/temp/${entry.title}.mp3`;
@@ -66,13 +70,14 @@ for (const entry of data) {
         const start = currentChapter.start_time;
         const end = nextChapter ? nextChapter.start_time : null;
 
-        const chapterPath = `./output/final/${entry.title}/${currentChapter.title}.mp3`;
+        const chapterTitle = transformToValidTitle(currentChapter.title);
+        const chapterPath = `./output/final/${entry.title}/${chapterTitle}.mp3`;
         console.log({ start, end });
         await trim(
           fullAudioPath,
           start,
           end,
-          currentChapter.title,
+          chapterTitle,
           chapterPath
         );
       }
