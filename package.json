@@ -6,13 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run clear && node index.js",
-    "clear": "rd /s /q output"
+    "clear": "if exist output rd /s /q output"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "fluent-ffmpeg": "^2.1.2",
-    "ytdl": "^1.4.1"
+    "ytdl": "^1.4.1",
+    "ytdl-core": "^4.10.1"
   }
 }
