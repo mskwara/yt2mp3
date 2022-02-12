@@ -49,7 +49,7 @@ for (const entry of data) {
         const chapterTitle = getValidFilename(currentChapter.title);
         const chapterPath = `${packagePath}/${chapterTitle}.mp3`;
 
-        await trim(fullAudioPath, start, end, chapterTitle, chapterPath);
+        trim(fullAudioPath, start, end, chapterTitle, chapterPath);
       }
     });
 
