@@ -15,29 +15,31 @@ createDirectory('./output/final');
 createDirectory('./output/temp');
 
 for (const entry of data) {
-  const fullAudioPath = `./output/${entry.splitByChapters ? 'temp' : 'final'}/${entry.title}.mp3`;
   let started = false;
-
+  
   ytdl.getInfo(entry.url).then((info) => {
+    const title = entry.title || info.videoDetails.title;
+    const fullAudioPath = `./output/${entry.splitByChapters ? 'temp' : 'final'}/${title}.mp3`;
     const readableStream = ytdl(entry.url, {
       format: ytdl.chooseFormat(info.formats, { quality: '140' }),
     });
 
+
     readableStream.on('pipe', () => {
       if (!started) {
-        console.log(`Downloading: ${entry.title}...`);
+        console.log(`Downloading: ${title}...`);
         started = true;
       }
     });
 
     readableStream.on('end', async () => {
-      console.log(`Successfully saved URL audio: ${entry.title}.`);
+      console.log(`Successfully saved URL audio: ${title}.`);
 
       if(!entry.splitByChapters) {
         return;
       }
 
-      const packagePath = `./output/final/${getValidFilename(entry.title)}`;
+      const packagePath = `./output/final/${getValidFilename(title)}`;
       createDirectory(packagePath);
 
       for (let i = 0; i < info.videoDetails.chapters.length; i++) {
