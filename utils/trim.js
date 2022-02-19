@@ -1,12 +1,18 @@
 const ffmpeg = require('fluent-ffmpeg');
 
+const operationNames = {
+  trimming: 'Trimming',
+  encoding: 'Encoding',
+}
+
 const trim = (src, start, end, title, output) => {
+  const operationName = start === null && end === null ? operationNames.encoding : operationNames.trimming;
   if (!src || !output) {
-    console.log(`Trimming failed for: ${title}. No src or output provided!`);
+    console.log(`${operationName} failed for: ${title}. No src or output provided!`);
     return;
   }
 
-  console.log(`Trimming: ${title}...`);
+  console.log(`${operationName}: ${title}...`);
 
   return new Promise((resolve, reject) => {
     let order = ffmpeg(src)
