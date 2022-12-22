@@ -82,7 +82,7 @@ const downloadRequestedMusic = async () => {
         console.log(`Successfully saved URL audio: ${validTitle}.`);
 
         if (entry.isFromPlaylist) {
-          const packagePath = `./output/final/${entry.playlistTitle}`;
+          const packagePath = `./output/final/${getValidFilename(entry.playlistTitle)}`;
           createDirectory(packagePath);
           const finalOutput = `${packagePath}/${validTitle}.mp3`;
           trim(fullAudioPath, null, null, validTitle, finalOutput).finally(
