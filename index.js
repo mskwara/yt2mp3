@@ -8,11 +8,13 @@ const _every = require('lodash/every');
 const _includes = require('lodash/includes');
 const _split = require('lodash/split');
 const _map = require('lodash/map');
+const _isNil = require('lodash/isNil');
 
 const createDirectory = require('./utils/createDirectory');
 const trim = require('./utils/trim');
 const getValidFilename = require('./utils/getValidFilename');
 const data = require('./data');
+const getSecondsFromTime = require('./utils/getSecondsFromTime');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -41,8 +43,7 @@ const downloadRequestedMusic = async () => {
   for (const entry of data) {
     if (_includes(entry.url, playlistSubstringIdentifier)) {
       const playlistId = _split(entry.url, playlistSubstringIdentifier)[1];
-      const { title: playlistTitle, playlist: playlistData } =
-        await scrapePlaylist(playlistId);
+      const { title: playlistTitle, playlist: playlistData } = await scrapePlaylist(playlistId);
       preparedData.push(
         ..._map(playlistData, (obj) => ({
           url: obj.url,
@@ -53,7 +54,11 @@ const downloadRequestedMusic = async () => {
         }))
       );
     } else {
-      preparedData.push(entry);
+      preparedData.push({
+        ...entry,
+        cropStart: entry.splitByChapters ? undefined : entry.cropStart,
+        cropEnd: entry.splitByChapters ? undefined : entry.cropEnd,
+      });
     }
   }
 
@@ -63,12 +68,10 @@ const downloadRequestedMusic = async () => {
     isDone[entryHash] = false;
 
     ytdl.getInfo(entry.url).then((info) => {
-      const validTitle = getValidFilename(
-        entry.title || info.videoDetails.title
-      );
+      const validTitle = getValidFilename(entry.title || info.videoDetails.title);
       const fullAudioPath = `./output/temp/${validTitle}.mp3`;
       const readableStream = ytdl(entry.url, {
-        format: ytdl.chooseFormat(info.formats, { quality: '140' }),
+        format: ytdl.chooseFormat(info.formats, { quality: '140' })
       });
 
       readableStream.on('pipe', () => {
@@ -85,23 +88,22 @@ const downloadRequestedMusic = async () => {
           const packagePath = `./output/final/${getValidFilename(entry.playlistTitle)}`;
           createDirectory(packagePath);
           const finalOutput = `${packagePath}/${validTitle}.mp3`;
-          trim(fullAudioPath, null, null, validTitle, finalOutput).finally(
-            () => {
-              isDone[entryHash] = true;
-              onProgramEnd();
-            }
-          );
+          trim(fullAudioPath, null, null, validTitle, finalOutput).finally(() => {
+            isDone[entryHash] = true;
+            onProgramEnd();
+          });
           return;
         }
 
         if (!entry.splitByChapters) {
           const finalOutput = `./output/final/${validTitle}.mp3`;
-          trim(fullAudioPath, null, null, validTitle, finalOutput).finally(
-            () => {
-              isDone[entryHash] = true;
-              onProgramEnd();
-            }
-          );
+          const start = entry.cropStart ? getSecondsFromTime(entry.cropStart) : null;
+          const end = entry.cropEnd ? getSecondsFromTime(entry.cropEnd) : null;
+          
+          trim(fullAudioPath, start, end, validTitle, finalOutput).finally(() => {
+            isDone[entryHash] = true;
+            onProgramEnd();
+          });
           return;
         }
 
@@ -119,9 +121,7 @@ const downloadRequestedMusic = async () => {
           const chapterTitle = getValidFilename(currentChapter.title);
           const chapterPath = `${packagePath}/${chapterTitle}.mp3`;
 
-          chapterPromises.push(
-            trim(fullAudioPath, start, end, chapterTitle, chapterPath)
-          );
+          chapterPromises.push(trim(fullAudioPath, start, end, chapterTitle, chapterPath));
         }
         Promise.all(chapterPromises).finally(() => {
           isDone[entryHash] = true;

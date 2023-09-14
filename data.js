@@ -1,20 +1,12 @@
+// Entry structure
+// {
+//   url: "YT-LINK" | "https://www.youtube.com/playlist?list=XXXXXXXXXXXXX";
+//   splitByChapters?: true | false;
+//   cropStart?: "HH:mm:ss"; // working for single track only
+//   cropEnd?: "HH:mm:ss"; // working for single track only
+//   title?: "XXXXXXX";
+// }
+
 module.exports = [
-  {
-    url: "https://www.youtube.com/watch?v=iTaq_m5LgdU",
-    title: "Sea Shanties - vol1",
-    splitByChapters: true,
-  },
-  {
-    url: "https://www.youtube.com/watch?v=J_4bhnQY7BA",
-    title: "Sea Shanties - vol2",
-    splitByChapters: true,
-  },
-  {
-    url: "https://www.youtube.com/watch?v=J6it0XEgXEo",
-    title: "Sea Shanties - vol3",
-    splitByChapters: true,
-  },
-  {
-    url: "https://www.youtube.com/playlist?list=PLbd8mEjGKXNSYG5aZX9ODmZWvOavycY2O",
-  },
+// put your entries data here
 ];
