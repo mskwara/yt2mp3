@@ -30,8 +30,8 @@ const trim = (src, start, end, title, output) => {
     if (start != null) {
       order = order.setStartTime(start);
     }
-    if (start != null && end != null) {
-      order = order.setDuration(end - start);
+    if (end != null) {
+      order = order.setDuration(end - (start ?? 0));
     }
 
     order.run();
