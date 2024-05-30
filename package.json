@@ -14,7 +14,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "lodash": "^4.17.21",
-    "youtube-playlist-scraper": "^2.1.1",
+    "youtubei": "^1.4.2",
     "ytdl": "^1.4.1",
     "ytdl-core": "^4.11.5"
   }

@@ -1,23 +1,25 @@
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
-const { scrapePlaylist } = require('youtube-playlist-scraper');
+const { Client } = require('youtubei');
 const _uniqueId = require('lodash/uniqueId');
 const _values = require('lodash/values');
 const _every = require('lodash/every');
 const _includes = require('lodash/includes');
 const _split = require('lodash/split');
 const _map = require('lodash/map');
-const _isNil = require('lodash/isNil');
 
 const createDirectory = require('./utils/createDirectory');
 const trim = require('./utils/trim');
 const getValidFilename = require('./utils/getValidFilename');
 const data = require('./data');
 const getSecondsFromTime = require('./utils/getSecondsFromTime');
+const createYoutubeLink = require('./utils/createYoutubeLink');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 ffmpeg.setFfmpegPath(ffmpegPath);
+
+const youtubeiClient = new Client();
 
 createDirectory('./output');
 createDirectory('./output/final');
@@ -43,10 +45,14 @@ const downloadRequestedMusic = async () => {
   for (const entry of data) {
     if (_includes(entry.url, playlistSubstringIdentifier)) {
       const playlistId = _split(entry.url, playlistSubstringIdentifier)[1];
-      const { title: playlistTitle, playlist: playlistData } = await scrapePlaylist(playlistId);
+      const {
+        videos: { items: playlistVideos },
+        title: playlistTitle
+      } = await youtubeiClient.getPlaylist(playlistId);
+
       preparedData.push(
-        ..._map(playlistData, (obj) => ({
-          url: obj.url,
+        ..._map(playlistVideos, ({ id }) => ({
+          url: createYoutubeLink(id),
           title: '',
           splitByChapters: false,
           isFromPlaylist: true,
@@ -71,7 +77,7 @@ const downloadRequestedMusic = async () => {
       const validTitle = getValidFilename(entry.title || info.videoDetails.title);
       const fullAudioPath = `./output/temp/${validTitle}.mp3`;
       const readableStream = ytdl(entry.url, {
-        format: ytdl.chooseFormat(info.formats, { quality: '140' })
+        format: ytdl.chooseFormat(info.formats, { quality: '140' }),
       });
 
       readableStream.on('pipe', () => {
@@ -99,7 +105,7 @@ const downloadRequestedMusic = async () => {
           const finalOutput = `./output/final/${validTitle}.mp3`;
           const start = entry.cropStart ? getSecondsFromTime(entry.cropStart) : null;
           const end = entry.cropEnd ? getSecondsFromTime(entry.cropEnd) : null;
-          
+
           trim(fullAudioPath, start, end, validTitle, finalOutput).finally(() => {
             isDone[entryHash] = true;
             onProgramEnd();
