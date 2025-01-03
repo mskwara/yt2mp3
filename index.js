@@ -1,5 +1,5 @@
 const fs = require('fs');
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 const { Client } = require('youtubei');
 const _uniqueId = require('lodash/uniqueId');
